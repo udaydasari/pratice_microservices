@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service-app
+spec:
+  selector:
+    matchLabels:
+      app: product-service-app
+  template:
+    metadata:
+      labels:
+        app: product-service-app
+    spec:
+      containers:
+      - name: product-service-app
+        image: udaydasari369369/pm_productservice
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        env:
+         - name: EUREKA_SERVER_ADDRESS
+           valueFrom:
+            key: eureka-service-address
+            name: eureka-config-map
+         - name: CONFIG_SERVER_URL
+           valueFrom:
+            key: config-url
+            name: config-config-map
+         - name: DB_HOST
+           valueFrom:
+              configMapKeyRef:
+                key: hostname
+                name: mysql-cm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service-svc
+spec:
+  selector:
+    app: product-service-app
+  ports:
+  - port: 80
+    targetPort: 8080
+

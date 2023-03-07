@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: eureka
+spec:
+  selector:
+    matchLabels:
+      app: eureka
+  serviceName: "eureka"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: eureka
+    spec:
+      containers:
+      - name: eureka
+      #location where images of service presnt in docker hub 
+        image: udaydasari369369/pm_serviceregistry
+        ports:
+        - containerPort: 80
+         #NOt required
+        #   name: web
+        # volumeMounts:
+        # - name: www
+        #   mountPath: /usr/share/nginx/html
+  
+ 
+  # volumeClaimTemplates:
+  # - metadata:
+  #     name: www
+  #   spec:
+  #     accessModes: [ "ReadWriteOnce" ]
+  #     resources:
+  #       requests:
+  #         storage: 1Gi
+  #using triple we can create another yaml file in single yaml file 
+---
+
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: eureka
+  spec:
+    clusterIp: None
+    selector:
+      app: eureka
+    ports:
+    - port: 8761
+      name: eureka
+      # targetPort: <Target Port>
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-loadbalance
+spec:
+  type: NodePort
+  selector:
+    app: eureka
+  ports:
+  - port: 80
+    targetPort: 8761
+
+  
